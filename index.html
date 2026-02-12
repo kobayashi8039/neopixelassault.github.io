@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Neo Pixel Assault</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="game-shell">
+      <header class="hud">
+        <h1>NEO PIXEL ASSAULT</h1>
+        <div class="stats">
+          <span id="score">SCORE: 000000</span>
+          <span id="lives">LIVES: 3</span>
+          <span id="stage">STAGE: 1</span>
+          <span id="wave">WAVE: 1/5</span>
+          <span id="weapon">WEAPON: PEASHOOTER</span>
+        </div>
+        <div class="meters">
+          <label for="bossBar">BOSS</label>
+          <progress id="bossBar" value="0" max="100"></progress>
+        </div>
+      </header>
+
+      <div class="game-area">
+        <canvas id="game" width="640" height="800" aria-label="近代風シューティングゲーム"></canvas>
+        <div id="touchHud" class="touch-hud hidden" aria-hidden="true">
+          <div id="stickBase" class="stick-base">
+            <div id="stickKnob" class="stick-knob"></div>
+          </div>
+          <div class="touch-buttons">
+            <button id="touchShoot" type="button" class="touch-btn">SHOT</button>
+            <button id="touchBomb" type="button" class="touch-btn danger">BOMB</button>
+            <button id="touchPause" type="button" class="touch-btn">PAUSE</button>
+            <button id="touchRestart" type="button" class="touch-btn">RETRY</button>
+          </div>
+        </div>
+      </div>
+
+      <section class="menu" id="menuPanel">
+        <h2>SETTINGS</h2>
+        <div class="menu-grid">
+          <label>難易度
+            <select id="difficulty">
+              <option value="easy">EASY</option>
+              <option value="normal" selected>NORMAL</option>
+              <option value="hard">HARD</option>
+            </select>
+          </label>
+          <label>操作モード
+            <select id="controlMode">
+              <option value="auto" selected>AUTO</option>
+              <option value="pc">PC</option>
+              <option value="mobile">MOBILE</option>
+            </select>
+          </label>
+          <label>自動射撃
+            <input id="autoFire" type="checkbox" />
+          </label>
+          <label>画面シェイク
+            <input id="screenShake" type="checkbox" checked />
+          </label>
+          <label>サウンド
+            <input id="soundEnabled" type="checkbox" checked />
+          </label>
+          <label>ステージ背景
+            <select id="stageTheme">
+              <option value="auto" selected>AUTO</option>
+              <option value="nebula">NEBULA</option>
+              <option value="grid">GRID</option>
+              <option value="sunset">SUNSET</option>
+            </select>
+          </label>
+          <label>プレイヤー機体
+            <select id="playerSkin">
+              <option value="falcon" selected>FALCON</option>
+              <option value="raptor">RAPTOR</option>
+              <option value="nova">NOVA</option>
+            </select>
+          </label>
+        </div>
+        <div class="menu-actions">
+          <button id="startButton" type="button">新規ゲーム開始</button>
+          <button id="continueButton" type="button">セーブから再開</button>
+        </div>
+      </section>
+
+      <p class="controls">PC: ← ↑ ↓ → / W A S D ・ SPACE ・ SHIFT ・ P ・ M / MOBILE: 仮想スティック + SHOT/BOMB/PAUSE</p>
+    </main>
+    <script src="game.js"></script>
+  </body>
+</html>
