@@ -20,6 +20,7 @@
         <div class="meters">
           <label for="bossBar">BOSS</label>
           <progress id="bossBar" value="0" max="100"></progress>
+          <div id="bombMeter" class="bomb-meter" aria-label="bomb-remaining"></div>
         </div>
       </header>
 
@@ -30,10 +31,10 @@
             <div id="stickKnob" class="stick-knob"></div>
           </div>
           <div class="touch-buttons">
-            <button id="touchShoot" type="button" class="touch-btn">SHOT</button>
-            <button id="touchBomb" type="button" class="touch-btn danger">BOMB</button>
-            <button id="touchPause" type="button" class="touch-btn">PAUSE</button>
-            <button id="touchRestart" type="button" class="touch-btn">RETRY</button>
+            <button id="touchShoot" type="button" class="touch-btn pos-up">SHOT</button>
+            <button id="touchBomb" type="button" class="touch-btn danger pos-left">BOMB</button>
+            <button id="touchPause" type="button" class="touch-btn pos-right">PAUSE</button>
+            <button id="touchRestart" type="button" class="touch-btn pos-down">RETRY</button>
           </div>
         </div>
       </div>

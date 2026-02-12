@@ -7,6 +7,7 @@ const stageEl = document.getElementById('stage');
 const waveEl = document.getElementById('wave');
 const weaponEl = document.getElementById('weapon');
 const bossBar = document.getElementById('bossBar');
+const bombMeter = document.getElementById('bombMeter');
 
 const menuPanel = document.getElementById('menuPanel');
 const startButton = document.getElementById('startButton');
@@ -30,14 +31,17 @@ const touchRestart = document.getElementById('touchRestart');
 
 const SAVE_KEY = 'neo-pixel-assault-save-v2';
 const WAVES_PER_STAGE = 5;
+const PLAYER_SCALE = 5;
+const ENEMY_SCALE = 5;
+const BOSS_SCALE = 9;
 
 const sprites = {
-  playerFalcon: ['00033000', '00366300', '036ff630', '36ffff63', '3fffffff', '03f99f30', '03633630', '00300300'],
-  playerRaptor: ['00088000', '008cc800', '08c99c80', '8cccccc8', 'ccffffcc', '08c66c80', '00822800', '00088000'],
-  playerNova: ['000aa000', '00affa00', '0affffa0', 'aff99ffa', 'affffffa', '0a8aa8a0', '00a00a00', '000aa000'],
-  scout: ['0660', '6ff6', 'f66f', '0660'],
-  tank: ['077770', '7ffff7', '7f66f7', '7ffff7', '077770'],
-  zig: ['0c0c0', 'ccccc', '0cfc0', 'ccccc', '0c0c0'],
+  playerFalcon: ['0000330000', '0003663000', '0036fff630', '036fffff63', '36ffffff63', '3fff99fff3', '03ff33ff30', '0033003300'],
+  playerRaptor: ['0000880000', '0008cc8000', '008ccccc80', '08cfffffc8', '8ccf66fccc', '0ccfffffcc', '008c22c800', '0000880000'],
+  playerNova: ['0000aa0000', '000affa000', '00afffffa0', '0aff99fffa', 'affffffffa', '0af88f88a0', '00af00fa00', '0000aa0000'],
+  scout: ['003300', '036630', '36ff63', '3ffff3', '036630', '003300'],
+  tank: ['00777700', '07ffff70', '7ff66ff7', '7ffffff7', '7f6ff6f7', '07ffff70', '00777700'],
+  zig: ['00cc00', '0cccc0', 'ccffcc', '0cccc0', '00cc00', '0c00c0'],
   boss: [
     '0000007777777000000',
     '000077fffffff770000',
@@ -90,11 +94,11 @@ const state = {
   shake: 0,
   settings: { difficulty: 'normal', controlMode: 'auto', autoFire: false, screenShake: true, soundEnabled: true, stageTheme: 'auto', playerSkin: 'falcon' },
   touch: { enabled: false, active: false, dx: 0, dy: 0, shoot: false },
-  player: { x: canvas.width / 2, y: canvas.height - 90, speed: 6, width: 32, height: 32, cooldown: 0, invincible: 0, weapon: 'PEASHOOTER', weaponLevel: 1, weaponTimer: 0 },
+  player: { x: canvas.width / 2, y: canvas.height - 90, speed: 6, width: sprites.playerFalcon[0].length * PLAYER_SCALE, height: sprites.playerFalcon.length * PLAYER_SCALE, cooldown: 0, invincible: 0, weapon: 'PEASHOOTER', weaponLevel: 1, weaponTimer: 0 },
   bullets: [], enemyBullets: [], enemies: [], powerups: [], effects: [], boss: null,
 };
 
-const audioState = { ctx: null, unlocked: false };
+const audioState = { ctx: null, unlocked: false, bgmTimer: null, bgmStep: 0 };
 const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
 function detectTouchDevice() {
@@ -125,6 +129,35 @@ function ensureAudio() {
     audioCtx.resume();
     audioState.unlocked = true;
   }
+}
+
+
+function stopBgm() {
+  if (audioState.bgmTimer) {
+    clearInterval(audioState.bgmTimer);
+    audioState.bgmTimer = null;
+  }
+}
+
+function startBgm() {
+  if (!state.settings.soundEnabled || audioState.bgmTimer) return;
+  const audioCtx = getAudioContext();
+  const seq = [220, 247, 196, 294, 247, 330, 196, 175];
+  audioState.bgmTimer = setInterval(() => {
+    if (!state.running || state.paused || !state.started || !state.settings.soundEnabled) return;
+    const t = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.value = seq[audioState.bgmStep % seq.length];
+    audioState.bgmStep += 1;
+    gain.gain.setValueAtTime(0.028, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(t);
+    osc.stop(t + 0.24);
+  }, 230);
 }
 
 function playSfx(type) {
@@ -219,7 +252,8 @@ function currentTheme() {
 
 function updateHud() {
   scoreEl.textContent = `SCORE: ${String(state.score).padStart(6, '0')}`;
-  livesEl.textContent = `LIVES: ${state.lives}  BOMB: ${state.bombs}`;
+  livesEl.textContent = `LIVES: ${state.lives}`;
+  bombMeter.innerHTML = Array.from({ length: 5 }, (_, i) => `<span class="bomb-dot ${i < state.bombs ? 'active' : ''}"></span>`).join('');
   stageEl.textContent = `STAGE: ${state.stage}`;
   waveEl.textContent = `WAVE: ${state.waveInStage}/${WAVES_PER_STAGE}`;
   weaponEl.textContent = `WEAPON: ${state.player.weapon}  BG: ${currentTheme().toUpperCase()}`;
@@ -362,7 +396,7 @@ function collide(a, b) {
 }
 
 function getEnemyBounds(enemy) {
-  return { x: enemy.x, y: enemy.y, w: enemy.sprite[0].length * 4, h: enemy.sprite.length * 4 };
+  return { x: enemy.x, y: enemy.y, w: enemy.sprite[0].length * ENEMY_SCALE, h: enemy.sprite.length * ENEMY_SCALE };
 }
 
 function getPlayerBounds() {
@@ -394,7 +428,7 @@ function playerHit() {
   state.enemyBullets = [];
   state.shake = Math.max(state.shake, 10);
   playSfx('hit');
-  if (state.lives <= 0) state.running = false;
+  if (state.lives <= 0) { state.running = false; stopBgm(); }
 }
 
 function applyPowerup(kind) {
@@ -561,7 +595,7 @@ function resolveCollisions() {
     }
 
     if (state.boss) {
-      const bossBox = { x: state.boss.x, y: state.boss.y, w: sprites.boss[0].length * 8, h: sprites.boss.length * 8 };
+      const bossBox = { x: state.boss.x, y: state.boss.y, w: sprites.boss[0].length * BOSS_SCALE, h: sprites.boss.length * BOSS_SCALE };
       if (collide(bulletBox, bossBox)) {
         bullet.y = -100;
         state.boss.hp -= bullet.power;
@@ -587,7 +621,7 @@ function resolveCollisions() {
   }
 
   if (state.boss) {
-    const bossBox = { x: state.boss.x, y: state.boss.y, w: sprites.boss[0].length * 8, h: sprites.boss.length * 8 };
+    const bossBox = { x: state.boss.x, y: state.boss.y, w: sprites.boss[0].length * BOSS_SCALE, h: sprites.boss.length * BOSS_SCALE };
     if (collide(playerBox, bossBox)) playerHit();
 
     if (state.boss.hp <= 0) {
@@ -652,7 +686,7 @@ function drawEntities() {
   for (const bullet of state.bullets) { ctx.fillStyle = bullet.laser ? '#ff7ce6' : '#52ffd9'; ctx.fillRect(bullet.x - 2, bullet.y - 8, bullet.laser ? 5 : 4, bullet.laser ? 18 : 12); }
   for (const bullet of state.enemyBullets) { ctx.fillStyle = '#ff4f8a'; ctx.fillRect(bullet.x - 2, bullet.y - 2, 5, 5); }
   for (const enemy of state.enemies) {
-    spriteCenterDraw(enemy.sprite, enemy.x, enemy.y, 4);
+    spriteCenterDraw(enemy.sprite, enemy.x, enemy.y, ENEMY_SCALE);
     if (enemy.maxHp > 1) {
       ctx.fillStyle = '#ffe96d'; ctx.fillRect(enemy.x - 12, enemy.y + 14, 24, 3);
       ctx.fillStyle = '#ff7b7b'; ctx.fillRect(enemy.x - 12, enemy.y + 14, (24 * enemy.hp) / enemy.maxHp, 3);
@@ -660,7 +694,7 @@ function drawEntities() {
   }
 
   if (state.boss) {
-    spriteCenterDraw(sprites.boss, state.boss.x, state.boss.y, 8);
+    spriteCenterDraw(sprites.boss, state.boss.x, state.boss.y, BOSS_SCALE);
     ctx.fillStyle = '#ffe96d'; ctx.fillText('BOSS CORE', state.boss.x - 36, state.boss.y - 66);
   }
 
@@ -668,7 +702,7 @@ function drawEntities() {
 
   if (!(state.player.invincible > 0 && Math.floor(state.player.invincible / 6) % 2 === 0)) {
     const sprite = playerSpriteMap[state.settings.playerSkin] || sprites.playerFalcon;
-    spriteCenterDraw(sprite, state.player.x, state.player.y, 4);
+    spriteCenterDraw(sprite, state.player.x, state.player.y, PLAYER_SCALE);
   }
 
   for (const effect of state.effects) {
@@ -736,14 +770,19 @@ function applySettingsFromUI() {
   state.settings.stageTheme = stageThemeSelect.value;
   state.settings.playerSkin = playerSkinSelect.value;
   updateControlModeUI();
+  if (!state.settings.soundEnabled) stopBgm();
+  else if (state.started) startBgm();
 }
 
 function startFromNewGame() {
   applySettingsFromUI();
   ensureAudio();
   state.started = true;
+  startBgm();
   menuPanel.classList.add('hidden');
   updateControlModeUI();
+  if (!state.settings.soundEnabled) stopBgm();
+  else if (state.started) startBgm();
   resetGame(1, 0, 3);
 }
 
@@ -754,8 +793,11 @@ function startFromSave() {
   state.started = true;
   menuPanel.classList.add('hidden');
   updateControlModeUI();
+  if (!state.settings.soundEnabled) stopBgm();
+  else if (state.started) startBgm();
   if (save) resetGame(save.stage, save.score, save.lives);
   else resetGame(1, 0, 3);
+  startBgm();
 }
 
 function restartFromGameOver() {
@@ -763,14 +805,15 @@ function restartFromGameOver() {
   const save = loadProgress();
   if (save) resetGame(save.stage, save.score, save.lives);
   else resetGame(1, 0, 3);
+  startBgm();
 }
 
 startButton.addEventListener('click', startFromNewGame);
 continueButton.addEventListener('click', startFromSave);
 
 window.addEventListener('keydown', (event) => {
-  if (event.code === 'KeyP') { state.paused = !state.paused; return; }
-  if (event.code === 'KeyM') { state.settings.soundEnabled = !state.settings.soundEnabled; soundEnabledInput.checked = state.settings.soundEnabled; return; }
+  if (event.code === 'KeyP') { state.paused = !state.paused; if (!state.paused) startBgm(); return; }
+  if (event.code === 'KeyM') { state.settings.soundEnabled = !state.settings.soundEnabled; soundEnabledInput.checked = state.settings.soundEnabled; if (state.settings.soundEnabled) { ensureAudio(); startBgm(); } else { stopBgm(); } return; }
 
   if (event.code === 'Enter' && state.started && !state.running) {
     restartFromGameOver();
@@ -832,7 +875,7 @@ touchShoot.addEventListener('pointerdown', (e) => { e.preventDefault(); setTouch
 touchShoot.addEventListener('pointerup', (e) => { e.preventDefault(); setTouchShoot(false); });
 touchShoot.addEventListener('pointercancel', () => setTouchShoot(false));
 touchBomb.addEventListener('pointerdown', (e) => { e.preventDefault(); ensureAudio(); useBomb(); });
-touchPause.addEventListener('pointerdown', (e) => { e.preventDefault(); state.paused = !state.paused; });
+touchPause.addEventListener('pointerdown', (e) => { e.preventDefault(); state.paused = !state.paused; if (!state.paused) startBgm(); });
 touchRestart.addEventListener('pointerdown', (e) => { e.preventDefault(); restartFromGameOver(); });
 
 const save = loadProgress();

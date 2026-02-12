@@ -15,6 +15,9 @@ body {
 .hud h1 { margin: 0; text-align: center; letter-spacing: 0.2rem; color: #ffe760; }
 .stats { margin-top: 8px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 10px; font-size: 0.95rem; }
 .meters { margin-top: 6px; display: flex; align-items: center; gap: 8px; }
+.bomb-meter { display: flex; gap: 4px; margin-left: 6px; }
+.bomb-dot { width: 10px; height: 10px; border-radius: 50%; border: 1px solid #8fefff; background: #0f2b44; }
+.bomb-dot.active { background: #ff7c9f; box-shadow: 0 0 6px #ff7c9faa; }
 progress { width: 100%; height: 14px; accent-color: #ff5b8d; }
 
 .game-area { width: min(96vw, 640px); position: relative; }
@@ -47,27 +50,38 @@ button {
 }
 .touch-hud.hidden { display: none; }
 .stick-base {
-  width: 128px; height: 128px; border-radius: 50%; border: 3px solid #8ee7ff;
+  width: 108px; height: 108px; border-radius: 50%; border: 3px solid #8ee7ff;
   background: #0d2344c7; position: relative; touch-action: none; pointer-events: auto;
   box-shadow: 0 0 16px #44d9ff55;
 }
 .stick-knob {
-  width: 52px; height: 52px; border-radius: 50%; background: #6cf4ffdd;
+  width: 42px; height: 42px; border-radius: 50%; background: #6cf4ffdd;
   border: 2px solid #fff; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
 }
 .touch-buttons {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
   width: 132px;
+  height: 132px;
+  gap: 4px;
   pointer-events: auto;
 }
 .touch-btn {
-  min-height: 44px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  padding: 0;
   font-weight: bold;
+  font-size: 0.62rem;
   touch-action: none;
-  background: #102650d9;
+  background: #102650e3;
+  place-self: center;
 }
+.touch-btn.pos-up { grid-column: 2; grid-row: 1; }
+.touch-btn.pos-left { grid-column: 1; grid-row: 2; }
+.touch-btn.pos-right { grid-column: 3; grid-row: 2; }
+.touch-btn.pos-down { grid-column: 2; grid-row: 3; }
 .touch-btn.danger { border-color: #ff809d; color: #ffd0da; }
 
 @media (max-width: 760px) {
