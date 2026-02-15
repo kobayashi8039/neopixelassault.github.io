@@ -34,6 +34,7 @@ const WAVES_PER_STAGE = 5;
 const PLAYER_SCALE = 5;
 const ENEMY_SCALE = 5;
 const BOSS_SCALE = 9;
+const BGM_FILE = 'Untitled.mp3';
 
 const sprites = {
   playerFalcon: ['0000330000', '0003663000', '0036fff630', '036fffff63', '36ffffff63', '3fff99fff3', '03ff33ff30', '0033003300'],
@@ -98,7 +99,7 @@ const state = {
   bullets: [], enemyBullets: [], enemies: [], powerups: [], effects: [], boss: null,
 };
 
-const audioState = { ctx: null, unlocked: false, bgmTimer: null, bgmStep: 0 };
+const audioState = { ctx: null, unlocked: false, bgmTimer: null, bgmStep: 0, bgmAudio: null, bgmUnavailable: false };
 const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
 function detectTouchDevice() {
@@ -122,6 +123,21 @@ function getAudioContext() {
   return audioState.ctx;
 }
 
+function getBgmAudio() {
+  if (!audioState.bgmAudio) {
+    const bgm = new Audio(BGM_FILE);
+    bgm.loop = true;
+    bgm.volume = 0.35;
+    bgm.preload = 'auto';
+    bgm.playsInline = true;
+    bgm.addEventListener('error', () => {
+      audioState.bgmUnavailable = true;
+    });
+    audioState.bgmAudio = bgm;
+  }
+  return audioState.bgmAudio;
+}
+
 function ensureAudio() {
   if (!state.settings.soundEnabled) return;
   const audioCtx = getAudioContext();
@@ -132,15 +148,9 @@ function ensureAudio() {
 }
 
 
-function stopBgm() {
-  if (audioState.bgmTimer) {
-    clearInterval(audioState.bgmTimer);
-    audioState.bgmTimer = null;
-  }
-}
+function startSynthBgmFallback() {
+  if (audioState.bgmTimer) return;
 
-function startBgm() {
-  if (!state.settings.soundEnabled || audioState.bgmTimer) return;
   const audioCtx = getAudioContext();
   const seq = [220, 247, 196, 294, 247, 330, 196, 175];
   audioState.bgmTimer = setInterval(() => {
@@ -158,6 +168,38 @@ function startBgm() {
     osc.start(t);
     osc.stop(t + 0.24);
   }, 230);
+}
+
+function stopBgm() {
+  if (audioState.bgmAudio) {
+    audioState.bgmAudio.pause();
+    audioState.bgmAudio.currentTime = 0;
+  }
+
+  if (audioState.bgmTimer) {
+    clearInterval(audioState.bgmTimer);
+    audioState.bgmTimer = null;
+  }
+}
+
+function startBgm() {
+  if (!state.settings.soundEnabled) return;
+
+  const bgm = getBgmAudio();
+  if (audioState.bgmUnavailable) {
+    startSynthBgmFallback();
+    return;
+  }
+
+  bgm.play().then(() => {
+    if (audioState.bgmTimer) {
+      clearInterval(audioState.bgmTimer);
+      audioState.bgmTimer = null;
+    }
+  }).catch(() => {
+    audioState.bgmUnavailable = true;
+    startSynthBgmFallback();
+  });
 }
 
 function playSfx(type) {
