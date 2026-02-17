@@ -36,107 +36,141 @@ const debugPanel = document.getElementById('debugPanel');
 
 const SAVE_KEY = 'neo-pixel-assault-save-v2';
 const WAVES_PER_STAGE = 5;
-const PLAYER_SCALE = 4;
-const ENEMY_SCALE = 4;
-const BOSS_SCALE = 6;
+const PLAYER_SCALE = 3;
+const ENEMY_SCALE = 3;
+const BOSS_SCALE = 3;
 const BGM_FILE = 'Untitled.mp3';
 
 const sprites = {
   playerFalcon: [
-    '000000330000',
-    '000033663300',
-    '000366ff6300',
-    '0036ffffff63',
-    '036ffffffff3',
-    '36ffff99ffff',
-    '3fffff33ffff',
-    '03fff333fff0',
-    '003f30003f00',
-    '003300003300',
-    '000300003000',
-    '000000000000',
+    '0000000330000000',
+    '0000003663000000',
+    '0000036ff6300000',
+    '000036ffff630000',
+    '00036fffff630000',
+    '0036ffffff663000',
+    '036ffff99ffff630',
+    '36fffff33fffff63',
+    '36fffff33fffff63',
+    '036ffff99ffff630',
+    '0036ffffff663000',
+    '00036fffff630000',
+    '000036f66f630000',
+    '0000033000330000',
+    '0000003000030000',
+    '0000000000000000',
   ],
   playerRaptor: [
-    '000000880000',
-    '000088cc8800',
-    '0008ccffcc80',
-    '008ccffffcc8',
-    '08ccff66ffcc',
-    '8ccffffffcc8',
-    '0ccfffffffcc',
-    '008cfccccf80',
-    '0008c222c800',
-    '000880008800',
-    '000800008000',
-    '000000000000',
+    '0000000880000000',
+    '0000008cc8000000',
+    '000008c99c800000',
+    '00008ccffcc80000',
+    '0008ccffffcc8000',
+    '008ccffffffcc800',
+    '08ccff6666ffcc80',
+    '8ccffffccffffcc8',
+    '8ccffffccffffcc8',
+    '08ccff6666ffcc80',
+    '008ccffffffcc800',
+    '0008ccffffcc8000',
+    '00008c6666c80000',
+    '0000082000280000',
+    '0000008000080000',
+    '0000000000000000',
   ],
   playerNova: [
-    '000000aa0000',
-    '0000affa0000',
-    '000afffffa00',
-    '00aff99fffa0',
-    '0afffffffffa',
-    'affff88ffffa',
-    '0affffaafffa',
-    '00afaa00aaf0',
-    '000af000fa00',
-    '0000a000a000',
-    '000000000000',
-    '000000000000',
+    '0000000aa0000000',
+    '000000affa000000',
+    '00000affffa00000',
+    '0000affffffa0000',
+    '000affffffffa000',
+    '00affff99ffffa00',
+    '0afffff88fffffa0',
+    'affffffaaaffffff',
+    'affffffaaaffffff',
+    '0afffff88fffffa0',
+    '00affff99ffffa00',
+    '000affffffffa000',
+    '0000affaaffa0000',
+    '00000af00fa00000',
+    '000000a000a00000',
+    '0000000000000000',
   ],
   scout: [
-    '00033000',
-    '00366300',
-    '036ff630',
-    '36ffff63',
-    '03f99f30',
-    '00366300',
-    '00033000',
-    '00000000',
+    '000033000000',
+    '000366300000',
+    '0036ff630000',
+    '036ffff63000',
+    '36fffffff630',
+    '3ffff99ffff3',
+    '03fff33fff30',
+    '003ff33ff300',
+    '000366663000',
+    '000033330000',
+    '000003300000',
+    '000000000000',
   ],
   tank: [
-    '0007777000',
-    '007ffff700',
-    '07ff66ff70',
-    '7ffffffff7',
-    '7ff6ff6ff7',
-    '07fffffff0',
-    '0077777700',
-    '0007007000',
+    '000077777000',
+    '0007ffff7000',
+    '007ff66ff700',
+    '07ffffffff70',
+    '7ff6ffff6ff7',
+    '7fffffffffff',
+    '7ff66ff66ff7',
+    '07ffffffff70',
+    '007ff66ff700',
+    '0007ffff7000',
+    '000077777000',
+    '000007700000',
   ],
   zig: [
-    '00cc00cc',
-    '0ccccccc',
-    'ccffccff',
-    '0ccccccc',
-    '00cc00cc',
-    '0c00cc00',
-    'cc0000cc',
-    '00000000',
+    '00cc0000cc00',
+    '0cccc00cccc0',
+    'ccffccccffcc',
+    '0ccccffcccc0',
+    '00ccffffcc00',
+    '0ccccffcccc0',
+    'ccffccccffcc',
+    '0cccc00cccc0',
+    '00cc0000cc00',
+    '0c000cc000c0',
+    'cc00000000cc',
+    '000000000000',
   ],
   boss: [
-    '000000000777777777000000000',
-    '000000077fffffffff770000000',
-    '0000007fff888888fff70000000',
-    '00007fff88ffffff88fff700000',
-    '0007ff88fffffffffff88ff7000',
-    '007ff8ff66ffffff66ff8ff7000',
-    '07ff8ffffffffffffffff8ff700',
-    '7ff8ff0ff0ffff0ff0ff8ff8ff7',
-    '7fffffffffffffffffffffffffff',
-    '07ff8ff0ff0ff0ff0ff8ff8ff70',
-    '007ff8ffffffffffffffff8ff700',
-    '0007ff88fffffffffff88ff7000',
-    '00007fff88ffffff88fff700000',
-    '000000777700000077770000000',
+    '000000000007777777777700000000000',
+    '00000000077ffffffffffff7700000000',
+    '000000007fff888888888fff700000000',
+    '0000007fff88fffffffff88fff7000000',
+    '000007ff88fffffffffffff88ff700000',
+    '00007ff8ff66ffffffff66ff8ff700000',
+    '0007ff8fffffffffffffffffff8ff7000',
+    '007ff8ff0ff0ffffffff0ff0ff8ff7000',
+    '07ff8ffffffffffffffffffffffff8ff70',
+    '7ff8ff66ff66ffffffffff66ff66ff8ff',
+    '7fffffffffffffffffffffffffffffffff',
+    '7ff8ff66ff66ffffffffff66ff66ff8ff',
+    '07ff8ffffffffffffffffffffffff8ff70',
+    '007ff8ff0ff0ffffffff0ff0ff8ff7000',
+    '0007ff8fffffffffffffffffff8ff7000',
+    '00007ff8ff66ffffffff66ff8ff700000',
+    '000007ff88fffffffffffff88ff700000',
+    '0000007fff88fffffffff88fff7000000',
+    '000000007fff888888888fff700000000',
+    '00000000077ffffffffffff7700000000',
+    '000000000007770000000777000000000',
+    '000000000000700000000070000000000',
   ],
   power: [
-    '00aa00',
-    '0affa0',
-    'affffa',
-    'affffa',
-    '0affa0',
-    '00aa00',
+    '000aa000',
+    '00affa00',
+    '0affffa0',
+    'affffffa',
+    'affffffa',
+    '0affffa0',
+    '00affa00',
+    '000aa000',
   ],
 };
 
@@ -179,6 +213,7 @@ const state = {
   touch: { enabled: false, active: false, dx: 0, dy: 0, shoot: false },
   player: { x: canvas.width / 2, y: canvas.height - 90, speed: 6, width: sprites.playerFalcon[0].length * PLAYER_SCALE, height: sprites.playerFalcon.length * PLAYER_SCALE, cooldown: 0, invincible: 0, weapon: 'PEASHOOTER', weaponLevel: 1, weaponTimer: 0 },
   bullets: [], enemyBullets: [], enemies: [], powerups: [], effects: [], boss: null,
+  powerSpawnTimer: 0,
   debug: { enabled: false, lastTime: performance.now(), fps: 0 },
 };
 
@@ -264,6 +299,15 @@ function stopBgm() {
     clearInterval(audioState.bgmTimer);
     audioState.bgmTimer = null;
   }
+}
+
+function syncBgmPlayback() {
+  if (!state.settings.soundEnabled) {
+    stopBgm();
+    return;
+  }
+
+  if (state.started) startBgm();
 }
 
 function startBgm() {
@@ -384,7 +428,10 @@ function updateHud() {
   lifeMeter.innerHTML = Array.from({ length: 5 }, (_, i) => `<span class="life-dot ${i < state.lives ? 'active' : ''}"></span>`).join('');
   stageEl.textContent = `STAGE: ${state.stage}`;
   waveEl.textContent = `WAVE: ${state.waveInStage}/${WAVES_PER_STAGE}`;
-  weaponEl.textContent = `WEAPON: ${state.player.weapon}  BG: ${currentTheme().toUpperCase()}`;
+  const weaponTimerSec = state.player.weapon === 'TRIPLE' && state.player.weaponTimer > 0
+    ? ` (${Math.ceil(state.player.weaponTimer / 60)}s)`
+    : '';
+  weaponEl.textContent = `WEAPON: ${state.player.weapon}${weaponTimerSec}  BG: ${currentTheme().toUpperCase()}`;
   if (state.boss) { bossBar.value = Math.max(0, state.boss.hp); bossBar.max = state.boss.maxHp; }
   else { bossBar.value = 0; bossBar.max = 100; }
 }
@@ -418,6 +465,7 @@ function resetGame(stage = 1, score = 0, lives = 3) {
   state.powerups = [];
   state.effects = [];
   state.boss = null;
+  state.powerSpawnTimer = 260;
   spawnWave();
   updateHud();
 }
@@ -447,7 +495,7 @@ function spawnEnemy(type, x, y) {
 function spawnWave() {
   if (state.waveInStage === WAVES_PER_STAGE) {
     const diff = difficultyTable[state.settings.difficulty];
-    const maxHp = Math.floor((350 + state.stage * 120) * diff.bossHpMul);
+    const maxHp = Math.max(40, Math.floor((350 + state.stage * 120) * diff.bossHpMul * 0.1));
     state.boss = {
       x: canvas.width / 2,
       y: 130,
@@ -479,20 +527,15 @@ function addEffect(x, y, color = '#ffffff') {
 function firePlayerBullets() {
   if (state.player.cooldown > 0 || !state.running) return;
 
-  const level = state.player.weaponLevel;
   const bullets = [];
-  if (state.player.weapon === 'SPREAD') {
-    const spread = [-2.2, -1, 0, 1, 2.2].slice(0, 2 + level);
-    for (const vx of spread) bullets.push({ x: state.player.x, y: state.player.y - 12, vx, vy: -8.5, power: 1 });
-    state.player.cooldown = Math.max(7, 14 - level * 2);
-  } else if (state.player.weapon === 'LASER') {
-    bullets.push({ x: state.player.x, y: state.player.y - 24, vx: 0, vy: -13, power: 2, laser: true });
-    state.player.cooldown = Math.max(5, 10 - level);
+  if (state.player.weapon === 'TRIPLE') {
+    bullets.push({ x: state.player.x, y: state.player.y - 18, vx: 0, vy: -9.4, power: 1 });
+    bullets.push({ x: state.player.x - 12, y: state.player.y - 15, vx: -0.7, vy: -8.9, power: 1 });
+    bullets.push({ x: state.player.x + 12, y: state.player.y - 15, vx: 0.7, vy: -8.9, power: 1 });
+    state.player.cooldown = 8;
   } else {
-    bullets.push({ x: state.player.x, y: state.player.y - 16, vx: 0, vy: -9.3, power: 1 });
-    if (level > 1) bullets.push({ x: state.player.x - 10, y: state.player.y - 12, vx: -0.6, vy: -8.7, power: 1 });
-    if (level > 2) bullets.push({ x: state.player.x + 10, y: state.player.y - 12, vx: 0.6, vy: -8.7, power: 1 });
-    state.player.cooldown = Math.max(5, 12 - level * 2);
+    bullets.push({ x: state.player.x, y: state.player.y - 18, vx: 0, vy: -9.5, power: 1 });
+    state.player.cooldown = 10;
   }
 
   state.bullets.push(...bullets);
@@ -566,11 +609,8 @@ function applyPowerup(kind) {
   else if (kind === 'bomb') state.bombs = Math.min(5, state.bombs + 1);
   else if (kind === 'shield') state.player.invincible = Math.max(state.player.invincible, 180);
   else {
-    const weapons = ['PEASHOOTER', 'SPREAD', 'LASER'];
-    const next = weapons[(weapons.indexOf(state.player.weapon) + 1) % weapons.length];
-    state.player.weapon = next;
-    state.player.weaponLevel = Math.min(4, state.player.weaponLevel + 1);
-    state.player.weaponTimer = 1100;
+    state.player.weapon = 'TRIPLE';
+    state.player.weaponTimer = 600;
   }
   playSfx('powerup');
 }
@@ -636,7 +676,6 @@ function updateEntities() {
     state.player.weaponTimer -= 1;
     if (state.player.weaponTimer === 0) {
       state.player.weapon = 'PEASHOOTER';
-      state.player.weaponLevel = Math.max(1, state.player.weaponLevel - 1);
     }
   }
 
@@ -686,6 +725,12 @@ function updateEntities() {
       spawnEnemy(Math.random() > 0.5 ? 'zig' : 'scout', state.boss.x + (Math.random() - 0.5) * 130, state.boss.y + 40);
       state.boss.summonCooldown = 120;
     }
+  }
+
+  state.powerSpawnTimer -= 1;
+  if (state.powerSpawnTimer <= 0) {
+    state.powerups.push({ x: 30 + Math.random() * (canvas.width - 60), y: -20, vy: 1.6 + Math.random() * 0.8, kind: Math.random() < 0.85 ? 'weapon' : (Math.random() < 0.5 ? 'bomb' : 'shield') });
+    state.powerSpawnTimer = 280 + Math.random() * 260;
   }
 
   for (const power of state.powerups) power.y += power.vy;
@@ -925,19 +970,16 @@ function applySettingsFromUI() {
   state.settings.invincibleMode = invincibleModeInput.checked;
   state.debug.enabled = state.settings.debugMode;
   updateControlModeUI();
-  if (!state.settings.soundEnabled) stopBgm();
-  else if (state.started) startBgm();
+  syncBgmPlayback();
 }
 
 function startFromNewGame() {
   applySettingsFromUI();
   ensureAudio();
   state.started = true;
-  startBgm();
   menuPanel.classList.add('hidden');
   updateControlModeUI();
-  if (!state.settings.soundEnabled) stopBgm();
-  else if (state.started) startBgm();
+  syncBgmPlayback();
   resetGame(1, 0, 3);
 }
 
@@ -948,11 +990,9 @@ function startFromSave() {
   state.started = true;
   menuPanel.classList.add('hidden');
   updateControlModeUI();
-  if (!state.settings.soundEnabled) stopBgm();
-  else if (state.started) startBgm();
+  syncBgmPlayback();
   if (save) resetGame(save.stage, save.score, save.lives);
   else resetGame(1, 0, 3);
-  startBgm();
 }
 
 function restartFromGameOver() {
