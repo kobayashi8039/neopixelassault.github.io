@@ -3,6 +3,7 @@ const ctx = canvas.getContext('2d');
 
 const scoreEl = document.getElementById('score');
 const livesEl = document.getElementById('lives');
+const hitsEl = document.getElementById('hits');
 const stageEl = document.getElementById('stage');
 const waveEl = document.getElementById('wave');
 const weaponEl = document.getElementById('weapon');
@@ -22,6 +23,7 @@ const soundEnabledInput = document.getElementById('soundEnabled');
 const stageThemeSelect = document.getElementById('stageTheme');
 const playerSkinSelect = document.getElementById('playerSkin');
 const debugModeInput = document.getElementById('debugMode');
+const invincibleModeInput = document.getElementById('invincibleMode');
 
 const touchHud = document.getElementById('touchHud');
 const stickBase = document.getElementById('stickBase');
@@ -34,32 +36,108 @@ const debugPanel = document.getElementById('debugPanel');
 
 const SAVE_KEY = 'neo-pixel-assault-save-v2';
 const WAVES_PER_STAGE = 5;
-const PLAYER_SCALE = 5;
-const ENEMY_SCALE = 5;
-const BOSS_SCALE = 9;
+const PLAYER_SCALE = 4;
+const ENEMY_SCALE = 4;
+const BOSS_SCALE = 6;
 const BGM_FILE = 'Untitled.mp3';
 
 const sprites = {
-  playerFalcon: ['0000330000', '0003663000', '0036fff630', '036fffff63', '36ffffff63', '3fff99fff3', '03ff33ff30', '0033003300'],
-  playerRaptor: ['0000880000', '0008cc8000', '008ccccc80', '08cfffffc8', '8ccf66fccc', '0ccfffffcc', '008c22c800', '0000880000'],
-  playerNova: ['0000aa0000', '000affa000', '00afffffa0', '0aff99fffa', 'affffffffa', '0af88f88a0', '00af00fa00', '0000aa0000'],
-  scout: ['003300', '036630', '36ff63', '3ffff3', '036630', '003300'],
-  tank: ['00777700', '07ffff70', '7ff66ff7', '7ffffff7', '7f6ff6f7', '07ffff70', '00777700'],
-  zig: ['00cc00', '0cccc0', 'ccffcc', '0cccc0', '00cc00', '0c00c0'],
-  boss: [
-    '0000007777777000000',
-    '000077fffffff770000',
-    '0007fff88888fff7000',
-    '007ff88ffffff88ff700',
-    '07ff8fffffffff8ff70',
-    '7ff8ff66ffff66ff8ff7',
-    '7fffffffffffffffffff7',
-    '7ff0ff0ffff0ff0ff0f7',
-    '07ffffffffffffffff70',
-    '007ff0ff0ff0ff0ff700',
-    '000770000000000077000',
+  playerFalcon: [
+    '000000330000',
+    '000033663300',
+    '000366ff6300',
+    '0036ffffff63',
+    '036ffffffff3',
+    '36ffff99ffff',
+    '3fffff33ffff',
+    '03fff333fff0',
+    '003f30003f00',
+    '003300003300',
+    '000300003000',
+    '000000000000',
   ],
-  power: ['0aa0', 'affa', 'affa', '0aa0'],
+  playerRaptor: [
+    '000000880000',
+    '000088cc8800',
+    '0008ccffcc80',
+    '008ccffffcc8',
+    '08ccff66ffcc',
+    '8ccffffffcc8',
+    '0ccfffffffcc',
+    '008cfccccf80',
+    '0008c222c800',
+    '000880008800',
+    '000800008000',
+    '000000000000',
+  ],
+  playerNova: [
+    '000000aa0000',
+    '0000affa0000',
+    '000afffffa00',
+    '00aff99fffa0',
+    '0afffffffffa',
+    'affff88ffffa',
+    '0affffaafffa',
+    '00afaa00aaf0',
+    '000af000fa00',
+    '0000a000a000',
+    '000000000000',
+    '000000000000',
+  ],
+  scout: [
+    '00033000',
+    '00366300',
+    '036ff630',
+    '36ffff63',
+    '03f99f30',
+    '00366300',
+    '00033000',
+    '00000000',
+  ],
+  tank: [
+    '0007777000',
+    '007ffff700',
+    '07ff66ff70',
+    '7ffffffff7',
+    '7ff6ff6ff7',
+    '07fffffff0',
+    '0077777700',
+    '0007007000',
+  ],
+  zig: [
+    '00cc00cc',
+    '0ccccccc',
+    'ccffccff',
+    '0ccccccc',
+    '00cc00cc',
+    '0c00cc00',
+    'cc0000cc',
+    '00000000',
+  ],
+  boss: [
+    '000000000777777777000000000',
+    '000000077fffffffff770000000',
+    '0000007fff888888fff70000000',
+    '00007fff88ffffff88fff700000',
+    '0007ff88fffffffffff88ff7000',
+    '007ff8ff66ffffff66ff8ff7000',
+    '07ff8ffffffffffffffff8ff700',
+    '7ff8ff0ff0ffff0ff0ff8ff8ff7',
+    '7fffffffffffffffffffffffffff',
+    '07ff8ff0ff0ff0ff0ff8ff8ff70',
+    '007ff8ffffffffffffffff8ff700',
+    '0007ff88fffffffffff88ff7000',
+    '00007fff88ffffff88fff700000',
+    '000000777700000077770000000',
+  ],
+  power: [
+    '00aa00',
+    '0affa0',
+    'affffa',
+    'affffa',
+    '0affa0',
+    '00aa00',
+  ],
 };
 
 const palette = {
@@ -90,13 +168,14 @@ const state = {
   paused: false,
   score: 0,
   lives: 3,
+  hitsTaken: 0,
   stage: 1,
   waveInStage: 1,
   bombs: 2,
   combo: 1,
   comboTimer: 0,
   shake: 0,
-  settings: { difficulty: 'normal', controlMode: 'auto', autoFire: false, screenShake: true, soundEnabled: true, stageTheme: 'auto', playerSkin: 'falcon', debugMode: false },
+  settings: { difficulty: 'normal', controlMode: 'auto', autoFire: false, screenShake: true, soundEnabled: true, stageTheme: 'auto', playerSkin: 'falcon', debugMode: false, invincibleMode: false },
   touch: { enabled: false, active: false, dx: 0, dy: 0, shoot: false },
   player: { x: canvas.width / 2, y: canvas.height - 90, speed: 6, width: sprites.playerFalcon[0].length * PLAYER_SCALE, height: sprites.playerFalcon.length * PLAYER_SCALE, cooldown: 0, invincible: 0, weapon: 'PEASHOOTER', weaponLevel: 1, weaponTimer: 0 },
   bullets: [], enemyBullets: [], enemies: [], powerups: [], effects: [], boss: null,
@@ -299,7 +378,8 @@ function currentTheme() {
 
 function updateHud() {
   scoreEl.textContent = `SCORE: ${String(state.score).padStart(6, '0')}`;
-  livesEl.textContent = `LIVES: ${state.lives}`;
+  livesEl.textContent = `LIVES: ${state.settings.invincibleMode ? '∞' : state.lives}`;
+  hitsEl.textContent = `HITS: ${state.hitsTaken}`;
   bombMeter.innerHTML = Array.from({ length: 5 }, (_, i) => `<span class="bomb-dot ${i < state.bombs ? 'active' : ''}"></span>`).join('');
   lifeMeter.innerHTML = Array.from({ length: 5 }, (_, i) => `<span class="life-dot ${i < state.lives ? 'active' : ''}"></span>`).join('');
   stageEl.textContent = `STAGE: ${state.stage}`;
@@ -322,6 +402,7 @@ function resetGame(stage = 1, score = 0, lives = 3) {
   state.lives = lives;
   state.stage = stage;
   state.waveInStage = 1;
+  state.hitsTaken = 0;
   state.bombs = 2;
   state.combo = 1;
   state.comboTimer = 0;
@@ -469,14 +550,15 @@ function onEnemyKilled(enemy) {
 
 function playerHit() {
   if (state.player.invincible > 0) return;
-  state.lives -= 1;
+  state.hitsTaken += 1;
+  if (!state.settings.invincibleMode) state.lives -= 1;
   state.player.invincible = 120;
   state.player.x = canvas.width / 2;
   state.player.y = canvas.height - 90;
   state.enemyBullets = [];
   state.shake = Math.max(state.shake, 10);
   playSfx('hit');
-  if (state.lives <= 0) { state.running = false; stopBgm(); }
+  if (!state.settings.invincibleMode && state.lives <= 0) { state.running = false; stopBgm(); }
 }
 
 function applyPowerup(kind) {
@@ -737,14 +819,15 @@ function drawEntities() {
   for (const enemy of state.enemies) {
     spriteCenterDraw(enemy.sprite, enemy.x, enemy.y, ENEMY_SCALE);
     if (enemy.maxHp > 1) {
-      ctx.fillStyle = '#ffe96d'; ctx.fillRect(enemy.x - 12, enemy.y + 14, 24, 3);
-      ctx.fillStyle = '#ff7b7b'; ctx.fillRect(enemy.x - 12, enemy.y + 14, (24 * enemy.hp) / enemy.maxHp, 3);
+      const barY = enemy.y + (enemy.sprite.length * ENEMY_SCALE) / 2 + 4;
+      ctx.fillStyle = '#ffe96d'; ctx.fillRect(enemy.x - 14, barY, 28, 3);
+      ctx.fillStyle = '#ff7b7b'; ctx.fillRect(enemy.x - 14, barY, (28 * enemy.hp) / enemy.maxHp, 3);
     }
   }
 
   if (state.boss) {
     spriteCenterDraw(sprites.boss, state.boss.x, state.boss.y, BOSS_SCALE);
-    ctx.fillStyle = '#ffe96d'; ctx.fillText('BOSS CORE', state.boss.x - 36, state.boss.y - 66);
+    ctx.fillStyle = '#ffe96d'; ctx.fillText('BOSS CORE', state.boss.x - 42, state.boss.y - 78);
   }
 
   for (const power of state.powerups) { spriteCenterDraw(sprites.power, power.x, power.y, 4); }
@@ -803,6 +886,7 @@ function updateDebugPanel() {
     `BOSS: ${state.boss ? `${Math.max(0, state.boss.hp)}/${state.boss.maxHp}` : 'NONE'}`,
     `STAGE/WAVE: ${state.stage}/${state.waveInStage}`,
     `CONTROL: ${state.touch.enabled ? 'MOBILE' : 'PC'}`,
+    `HITS: ${state.hitsTaken}  INV: ${state.settings.invincibleMode ? 'ON' : 'OFF'}`,
   ].join('\n');
 }
 
@@ -838,6 +922,7 @@ function applySettingsFromUI() {
   state.settings.stageTheme = stageThemeSelect.value;
   state.settings.playerSkin = playerSkinSelect.value;
   state.settings.debugMode = debugModeInput.checked;
+  state.settings.invincibleMode = invincibleModeInput.checked;
   state.debug.enabled = state.settings.debugMode;
   updateControlModeUI();
   if (!state.settings.soundEnabled) stopBgm();
