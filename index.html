@@ -21,11 +21,13 @@
           <label for="bossBar">BOSS</label>
           <progress id="bossBar" value="0" max="100"></progress>
           <div id="bombMeter" class="bomb-meter" aria-label="bomb-remaining"></div>
+          <div id="lifeMeter" class="life-meter" aria-label="lives-remaining"></div>
         </div>
       </header>
 
       <div class="game-area">
         <canvas id="game" width="640" height="800" aria-label="近代風シューティングゲーム"></canvas>
+        <aside id="debugPanel" class="debug-panel hidden" aria-live="polite"></aside>
         <div id="touchHud" class="touch-hud hidden" aria-hidden="true">
           <div id="stickBase" class="stick-base">
             <div id="stickKnob" class="stick-knob"></div>
@@ -64,6 +66,9 @@
           </label>
           <label>サウンド
             <input id="soundEnabled" type="checkbox" checked />
+          </label>
+          <label>デバッグ表示
+            <input id="debugMode" type="checkbox" />
           </label>
           <label>ステージ背景
             <select id="stageTheme">

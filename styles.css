@@ -11,16 +11,34 @@ body {
   gap: 10px; padding: 14px; border: 3px solid #56ebff;
   box-shadow: 0 0 26px #00e0ff66, inset 0 0 18px #00dcff33; background: #030a18f0;
 }
-.hud { width: 100%; }
+.hud { width: 100%; padding: 8px 10px; border: 1px solid #49dcff55; background: linear-gradient(180deg, #0f2348c7, #081228a8); }
 .hud h1 { margin: 0; text-align: center; letter-spacing: 0.2rem; color: #ffe760; }
-.stats { margin-top: 8px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 10px; font-size: 0.95rem; }
+.stats { margin-top: 8px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 10px; font-size: 0.95rem; text-shadow: 0 0 8px #4be0ff44; }
 .meters { margin-top: 6px; display: flex; align-items: center; gap: 8px; }
 .bomb-meter { display: flex; gap: 4px; margin-left: 6px; }
+.life-meter { display: flex; gap: 4px; margin-left: 6px; }
 .bomb-dot { width: 10px; height: 10px; border-radius: 50%; border: 1px solid #8fefff; background: #0f2b44; }
 .bomb-dot.active { background: #ff7c9f; box-shadow: 0 0 6px #ff7c9faa; }
+.life-dot { width: 10px; height: 10px; transform: rotate(45deg); border: 1px solid #9fffff; background: #10314c; }
+.life-dot.active { background: #62ffb0; box-shadow: 0 0 6px #62ffb0aa; }
 progress { width: 100%; height: 14px; accent-color: #ff5b8d; }
 
 .game-area { width: min(96vw, 640px); position: relative; }
+.debug-panel {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  min-width: 160px;
+  padding: 8px;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  background: #04162bcc;
+  border: 1px solid #58ebff99;
+  color: #c7f5ff;
+  z-index: 4;
+  white-space: pre-line;
+}
+.debug-panel.hidden { display: none; }
 canvas {
   width: 100%; border: 2px solid #99ffbf; image-rendering: pixelated;
   background: #040616; touch-action: none; display: block;
@@ -75,7 +93,8 @@ button {
   font-weight: bold;
   font-size: 0.62rem;
   touch-action: none;
-  background: #102650e3;
+  background: radial-gradient(circle at 30% 25%, #2f5f9e, #102650e3);
+  box-shadow: 0 0 10px #39d6ff55;
   place-self: center;
 }
 .touch-btn.pos-up { grid-column: 2; grid-row: 1; }
@@ -88,7 +107,8 @@ button {
   .menu-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .touch-hud { inset: auto 0 8px 0; padding: 0 8px; }
-  .stick-base { width: 118px; height: 118px; }
-  .touch-buttons { width: 120px; }
-  .touch-btn { min-height: 40px; font-size: 0.85rem; }
+  .stick-base { width: 92px; height: 92px; }
+  .stick-knob { width: 36px; height: 36px; }
+  .touch-buttons { width: 108px; height: 108px; }
+  .touch-btn { width: 34px; height: 34px; font-size: 0.55rem; }
 }
